@@ -2,29 +2,61 @@ using UnityEngine;
 
 public class RandomSpawner : MonoBehaviour
 {
-    public Hole[] holePoints;      // Array of empty GameObjects in scene
-    public GameObject rabbitPrefab;      // Sphere
-    public GameObject hedgehogPrefab;    // Cube
-    public float spawnInterval = 1.5f;
+    [Header("Setup")]
+    public Hole[] holePoints;              
+    public GameObject rabbitPrefab;
+    public GameObject hedgehogPrefab;
+
+    public enum Difficulty { Easy, Medium, Hard }
+    public Difficulty currentDifficulty = Difficulty.Medium;
+
+    private float spawnInterval;
+    private float animalLifetime;
 
     void Start()
     {
-        InvokeRepeating("SpawnRandomAnimal", 1f, spawnInterval);
+        SetDifficulty(currentDifficulty);
+        InvokeRepeating(nameof(SpawnRandomAnimal), 1f, spawnInterval);
+    }
+
+    void SetDifficulty(Difficulty difficulty)
+    {
+        switch (difficulty)
+        {
+            case Difficulty.Easy:
+                spawnInterval = 2.0f;
+                animalLifetime = 3.0f;
+                break;
+            case Difficulty.Medium:
+                spawnInterval = 1.2f;
+                animalLifetime = 2.0f;
+                break;
+            case Difficulty.Hard:
+                spawnInterval = 0.7f;
+                animalLifetime = 1.2f;
+                break;
+        }
     }
 
     void SpawnRandomAnimal()
     {
+        if (holePoints.Length == 0) return;
+
         int index = Random.Range(0, holePoints.Length);
         Hole hole = holePoints[index];
 
         if (hole == null)
         {
-            Debug.LogError($"[ERROR] holePoints[{index}] is null! Check your Inspector.");
+            Debug.LogWarning($"[ERROR] holePoints[{index}] is null!");
             return;
         }
 
-        GameObject prefab = (Random.value < 0.5f) ? rabbitPrefab : hedgehogPrefab;
-        hole.Spawn(prefab);
+        GameObject prefab = Random.value < 0.5f ? rabbitPrefab : hedgehogPrefab;
+        GameObject spawned = hole.Spawn(prefab);
 
+        if (spawned != null)
+        {
+            Destroy(spawned, animalLifetime);
+        }
     }
 }

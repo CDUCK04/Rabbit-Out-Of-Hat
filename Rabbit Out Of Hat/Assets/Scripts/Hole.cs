@@ -4,12 +4,15 @@ public class Hole : MonoBehaviour
 {
     private GameObject currentOccupant;
 
-    // Call this when you want to spawn something in this hole
-    public void Spawn(GameObject prefab)
+    public GameObject Spawn(GameObject prefab)
     {
-        Clear(); // Remove whatever was here before
+        Clear();
 
-        currentOccupant = Instantiate(prefab, transform.position + Vector3.up * 0.5f, Quaternion.identity);
+        Vector3 spawnPosition = new Vector3(transform.position.x, 0.75f, transform.position.z);
+        Quaternion spawnRotation = Quaternion.Euler(0f, 180f, 0f);
+
+        currentOccupant = Instantiate(prefab, spawnPosition, spawnRotation);
+        return currentOccupant;
     }
 
     public void Clear()
@@ -19,5 +22,10 @@ public class Hole : MonoBehaviour
             Destroy(currentOccupant);
             currentOccupant = null;
         }
+    }
+
+    public GameObject GetCurrentOccupant()
+    {
+        return currentOccupant;
     }
 }
